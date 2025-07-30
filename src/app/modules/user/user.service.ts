@@ -1,0 +1,41 @@
+import bcrypt from "bcrypt";
+import httpStatus from "http-status-codes";
+import { User } from "./user.model";
+import { IUser } from "./user.interface";
+import { envVars } from "../../config/env";
+import AppError from "../../errorhelpers/appError";
+
+const createUser = async (payload: Partial<IUser>) => {
+  const { email, password, ...rest } = payload;
+
+
+
+  const isUserExist = await User.findOne({ email });
+
+  if (isUserExist) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Exist");
+  }
+
+  const hashedPassword = await bcrypt.hash(
+    password as string,
+    Number(envVars.BCRYPT_SALT_ROUND)
+  );
+
+
+
+  const user = await User.create({
+    email,
+    password: hashedPassword,
+
+    ...rest,
+  });
+
+  return user;
+};
+
+
+
+export const UserServices = {
+  createUser,
+ 
+};
