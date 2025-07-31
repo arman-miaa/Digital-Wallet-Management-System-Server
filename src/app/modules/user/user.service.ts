@@ -4,6 +4,7 @@ import { User } from "./user.model";
 import { IUser } from "./user.interface";
 import { envVars } from "../../config/env";
 import AppError from "../../errorhelpers/appError";
+import { Wallet } from "../wallet/wallet.model";
 
 const createUser = async (payload: Partial<IUser>) => {
   const { email, password, ...rest } = payload;
@@ -29,6 +30,13 @@ const createUser = async (payload: Partial<IUser>) => {
 
     ...rest,
   });
+
+  await Wallet.create({
+    user: user._id,
+    balance: 50, 
+    role: user.role === "agent" ? "agent" : "user", 
+  });
+
 
   return user;
 };
