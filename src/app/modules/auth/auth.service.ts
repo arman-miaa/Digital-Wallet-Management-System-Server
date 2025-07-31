@@ -16,7 +16,7 @@ import {
 
 const credentialsLogin = async (payload: Partial<IUser>) => {
   const { email, password } = payload;
-  console.log('loign data',email,password);
+  // console.log('loign data',email,password);
 
  const isUserExist = await User.findOne({ email });
 

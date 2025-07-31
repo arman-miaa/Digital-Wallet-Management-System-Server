@@ -61,7 +61,7 @@ export const createNewAccessTokenWithRefreshToken = async (
   const jwtPayload = {
     userId: isUserExist._id,
     email: isUserExist.email,
-    role: isUserExist.role,
+    role: isUserExist.role, 
   };
   const accessToken = generateToken(
     jwtPayload,

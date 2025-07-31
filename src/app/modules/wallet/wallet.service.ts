@@ -77,6 +77,9 @@ const withdraw = async (userId: string, amount: number) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid amount");
   }
 
+
+  
+
   const wallet = await Wallet.findOne({ user: userId });
 
   if (!wallet || wallet.isBlocked) {
@@ -104,126 +107,119 @@ const withdraw = async (userId: string, amount: number) => {
   return wallet;
 };
 
-const sendMoney = async (
+export const sendMoney = async (
   senderId: string,
-  receiverPhone: string,
+  recipientId: string,
   amount: number
 ) => {
-  if (amount <= 0) {
+  if (!amount || amount <= 0) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid amount");
   }
 
-  const senderUser = await User.findById(senderId);
-  const senderWallet = await Wallet.findOne({ user: senderId });
-  const receiverUser = await User.findOne({ phone: receiverPhone });
-  const receiverWallet = receiverUser
-    ? await Wallet.findOne({ user: receiverUser._id })
-    : null;
-
-  if (!senderWallet || senderWallet.isBlocked) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Sender wallet not found or is blocked"
-    );
+  if (senderId === recipientId) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Cannot send money to yourself");
   }
 
-  if (!receiverWallet || receiverWallet.isBlocked) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Receiver wallet not found or is blocked"
-    );
-  }
-
-  if (senderWallet.balance < amount) {
+  const sender = await Wallet.findOne({ user: senderId });
+  if (!sender || sender.balance < amount) {
     throw new AppError(httpStatus.BAD_REQUEST, "Insufficient balance");
   }
 
-  senderWallet.balance -= amount;
-  receiverWallet.balance += amount;
+  const recipient = await Wallet.findOne({ user: recipientId });
+  if (!recipient) {
+    throw new AppError(httpStatus.NOT_FOUND, "Recipient wallet not found");
+  }
 
-  await senderWallet.save();
-  await receiverWallet.save();
+  // Transaction processing
+  sender.balance -= amount;
+  recipient.balance += amount;
 
-  await Transaction.create({
+  await sender.save();
+  await recipient.save();
+
+  const senderTxn = await Transaction.create({
+    user: sender.user,
     type: "transfer",
     amount,
-    from: senderWallet._id,
-    to: receiverWallet._id,
-    status: "success",
+    to: recipientId,
   });
 
-  return {
-    senderWallet,
-    receiverWallet,
-  };
-};
+  const recipientTxn = await Transaction.create({
+    user: recipient.user,
+    type: "RECEIVE",
+    amount,
+    from: senderId,
+  });
 
-const cashIn = async (agentId: string, userPhone: string, amount: number) => {
-  if (amount <= 0) {
+  return { senderTxn, recipientTxn };
+};
+export const cashIn = async (
+  agentId: string,
+  userId: string,
+  amount: number
+) => {
+  if (!amount || amount <= 0) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid amount");
   }
 
+  if (agentId === userId) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Cannot cash-in to yourself");
+  }
+
   const agentWallet = await Wallet.findOne({ user: agentId });
-  const user = await User.findOne({ phone: userPhone });
-  const userWallet = user ? await Wallet.findOne({ user: user._id }) : null;
-
-  if (!agentWallet || agentWallet.isBlocked) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Agent wallet not found or is blocked"
-    );
-  }
-
-  if (!userWallet || userWallet.isBlocked) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "User wallet not found or is blocked"
-    );
-  }
-
-  if (agentWallet.balance < amount) {
+  if (!agentWallet || agentWallet.balance < amount) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "Agent has insufficient balance"
     );
   }
 
+  const userWallet = await Wallet.findOne({ user: userId });
+  if (!userWallet) {
+    throw new AppError(httpStatus.NOT_FOUND, "User wallet not found");
+  }
+
+  // টাকা ট্রান্সফার প্রসেসিং
   agentWallet.balance -= amount;
   userWallet.balance += amount;
 
   await agentWallet.save();
   await userWallet.save();
 
-  await Transaction.create({
+  // ট্রান্সাকশন লগ
+  const agentTxn = await Transaction.create({
+    user: agentId,
     type: "cashin",
     amount,
-    from: agentWallet._id,
-    to: userWallet._id,
-    status: "success",
+    to: userId,
   });
 
-  return {
-    agentWallet,
-    userWallet,
-  };
+  const userTxn = await Transaction.create({
+    user: userId,
+    type: "RECEIVE",
+    amount,
+    from: agentId,
+  });
+
+  return { agentTxn, userTxn };
 };
 
-const cashOut = async (agentId: string, userPhone: string, amount: number) => {
-  if (amount <= 0) {
+export const cashOut = async (
+  userId: string,
+  agentId: string,
+  amount: number
+) => {
+  if (!amount || amount <= 0) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid amount");
   }
 
-  const agentWallet = await Wallet.findOne({ user: agentId });
-  const user = await User.findOne({ phone: userPhone });
-  const userWallet = user ? await Wallet.findOne({ user: user._id }) : null;
+  console.log('now data .......',agentId,userId);
 
-  if (!agentWallet || agentWallet.isBlocked) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Agent wallet not found or is blocked"
-    );
+  if (userId === agentId) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Cannot cash-out to yourself");
   }
 
+  const userWallet = await Wallet.findOne({ user: userId });
   if (!userWallet || userWallet.isBlocked) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -231,29 +227,44 @@ const cashOut = async (agentId: string, userPhone: string, amount: number) => {
     );
   }
 
-  if (userWallet.balance < amount) {
-    throw new AppError(httpStatus.BAD_REQUEST, "User has insufficient balance");
+  const agentWallet = await Wallet.findOne({ user: agentId });
+  if (!agentWallet || agentWallet.isBlocked) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Agent wallet not found or is blocked"
+    );
   }
 
+  if (userWallet.balance < amount) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Insufficient user balance");
+  }
+
+  // টাকা ট্রান্সফার প্রসেসিং
   userWallet.balance -= amount;
   agentWallet.balance += amount;
 
-  await agentWallet.save();
   await userWallet.save();
+  await agentWallet.save();
 
-  await Transaction.create({
+  // ট্রান্সাকশন লগ
+  const userTxn = await Transaction.create({
+    user: userId,
     type: "cashout",
     amount,
-    from: userWallet._id,
-    to: agentWallet._id,
-    status: "success",
+    to: agentId,
   });
 
-  return {
-    agentWallet,
-    userWallet,
-  };
+  const agentTxn = await Transaction.create({
+    user: agentId,
+    type: "RECEIVE",
+    amount,
+    from: userId,
+  });
+
+  return { userTxn, agentTxn };
 };
+
+
 
 export const WalletService = {
   getMyWallet,

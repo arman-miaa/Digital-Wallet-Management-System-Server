@@ -17,7 +17,7 @@ const transactionSchema = new Schema<ITransaction>(
     },
     type: {
       type: String,
-      enum: ["add", "withdraw", "transfer","cashin","cashout"],
+      enum: ["add", "withdraw", "transfer", "cashin", "cashout", "RECEIVE"],
       required: true,
     },
     status: {

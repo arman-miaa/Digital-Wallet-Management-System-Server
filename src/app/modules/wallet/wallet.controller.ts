@@ -6,6 +6,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { IUser } from "../user/user.interface";
 import AppError from "../../errorhelpers/appError";
+import { logTransaction } from "../../utils/logTransaction";
 
 
 
@@ -39,7 +40,7 @@ export const blockWallet = catchAsync(async (req: Request, res: Response) => {
 // export const depositMoney = catchAsync(async (req: Request, res: Response) => {
 //   const user = req.body;
 //   const { amount } = req.body;
-//   console.log('now data',req.body,user,amount);
+
 //   const result = await WalletService.deposit(user._id, amount);
 //   sendResponse(res, {
 //     statusCode: httpStatus.OK,
@@ -49,7 +50,7 @@ export const blockWallet = catchAsync(async (req: Request, res: Response) => {
 //   });
 // });
 export const depositMoney = catchAsync(async (req: Request, res: Response) => {
-  console.log('data.........',req.user);
+
   const userId = req.user?.userId; 
   const { amount } = req.body;
 
@@ -58,6 +59,7 @@ export const depositMoney = catchAsync(async (req: Request, res: Response) => {
   if (!userId) {
     throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
   }
+
 
   const result = await WalletService.deposit(userId, amount);
 
@@ -71,9 +73,9 @@ export const depositMoney = catchAsync(async (req: Request, res: Response) => {
 
 
 export const withdrawMoney = catchAsync(async (req: Request, res: Response) => {
-  const user = req.body;
+   const userId = req.user?.userId; 
   const { amount } = req.body;
-  const result = await WalletService.withdraw(user._id, amount);
+  const result = await WalletService.withdraw(userId, amount);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -83,13 +85,15 @@ export const withdrawMoney = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const sendMoney = catchAsync(async (req: Request, res: Response) => {
-  const sender = req.body;
-  const { receiverPhone, amount } = req.body;
-  const result = await WalletService.sendMoney(
-    sender._id,
-    receiverPhone,
-    amount
-  );
+  const senderId = req.user?.userId;
+  const { recipientId, amount } = req.body;
+
+  if (!senderId) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
+  }
+
+  const result = await WalletService.sendMoney(senderId, recipientId, amount);
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -98,10 +102,11 @@ export const sendMoney = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
 export const cashIn = catchAsync(async (req: Request, res: Response) => {
-  const agent = req.body;
-  const { userPhone, amount } = req.body;
-  const result = await WalletService.cashIn(agent._id, userPhone, amount);
+  const senderId = req.user?.userId;
+  const { recipientId, amount } = req.body;
+  const result = await WalletService.cashIn(senderId,recipientId, amount);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -110,10 +115,12 @@ export const cashIn = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
 export const cashOut = catchAsync(async (req: Request, res: Response) => {
-  const agent = req.body;
-  const { userPhone, amount } = req.body;
-  const result = await WalletService.cashOut(agent._id, userPhone, amount);
+  const agent = req.user?.userId;
+  console.log("agent..........",req.user);
+  const { userId, amount } = req.body;
+  const result = await WalletService.cashOut(agent, userId, amount);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
