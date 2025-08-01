@@ -22,6 +22,7 @@ export const createInitialWallet = async (userId: string, role: string) => {
 
 
 const getMyWallet = async (userId: string) => {
+ 
   const wallet = await Wallet.findOne({ user: userId });
 
   if (!wallet) {

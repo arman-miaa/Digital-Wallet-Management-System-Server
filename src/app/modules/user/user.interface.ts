@@ -21,6 +21,8 @@ export interface IUser {
   role?: IUserRole;
   isActive?: IsActive;
 
+  status?: "approved" | "suspended";
+
   wallet?: Types.ObjectId;
   isDeleted?: boolean;
 

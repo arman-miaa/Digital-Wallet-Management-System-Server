@@ -37,18 +37,7 @@ export const blockWallet = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// export const depositMoney = catchAsync(async (req: Request, res: Response) => {
-//   const user = req.body;
-//   const { amount } = req.body;
 
-//   const result = await WalletService.deposit(user._id, amount);
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: "Money deposited successfully",
-//     data: result,
-//   });
-// });
 export const depositMoney = catchAsync(async (req: Request, res: Response) => {
 
   const userId = req.user?.userId; 
