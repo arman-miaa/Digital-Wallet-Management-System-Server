@@ -37,12 +37,12 @@ const getAllWallet = () => __awaiter(void 0, void 0, void 0, function* () {
         },
     };
 });
-const addMoney = (user_id, agent_id, amount) => __awaiter(void 0, void 0, void 0, function* () {
-    if (amount <= 0)
-        throw new AppError_1.default(400, "Invalid amount");
+const addMoney = (agent_id, user_id, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    if (amount < 100)
+        throw new AppError_1.default(400, "Minimum amount 100");
     const userWallet = yield wallet_model_1.WalletModel.findOne({ user: user_id });
     const agentWallet = yield wallet_model_1.WalletModel.findOne({ user: agent_id });
-    const userModel = yield user_model_1.UserModel.findById(agent_id);
+    const userModel = yield user_model_1.UserModel.findById(user_id);
     if (!userModel || userModel.role !== "USER")
         throw new AppError_1.default(404, "This account is not register as USER");
     if (!userWallet || !agentWallet)
@@ -69,8 +69,8 @@ const addMoney = (user_id, agent_id, amount) => __awaiter(void 0, void 0, void 0
     };
 });
 const withdrawMoney = (user_id, agent_id, amount) => __awaiter(void 0, void 0, void 0, function* () {
-    if (amount <= 0)
-        throw new AppError_1.default(400, "Invalid amount");
+    if (amount < 100)
+        throw new AppError_1.default(400, "Minimum amount 100");
     const userWallet = yield wallet_model_1.WalletModel.findOne({ user: user_id });
     const agentWallet = yield wallet_model_1.WalletModel.findOne({ user: agent_id });
     const agentModel = yield user_model_1.UserModel.findById(agent_id);
@@ -110,6 +110,9 @@ const withdrawMoney = (user_id, agent_id, amount) => __awaiter(void 0, void 0, v
 const transferMoney = (sender_id, receiver_id, amount) => __awaiter(void 0, void 0, void 0, function* () {
     if (amount <= 0)
         throw new AppError_1.default(400, "Invalid amount");
+    if (sender_id === receiver_id) {
+        throw new AppError_1.default(404, "You can't send money to your own account");
+    }
     const senderWallet = yield wallet_model_1.WalletModel.findOne({ user: sender_id });
     const receiverWallet = yield wallet_model_1.WalletModel.findOne({ user: receiver_id });
     const userModel = yield user_model_1.UserModel.findById(receiver_id);

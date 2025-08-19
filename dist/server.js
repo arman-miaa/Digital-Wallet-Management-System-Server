@@ -34,7 +34,7 @@ const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, seedAdmin_1.seedSuperAdmin)();
 }))();
 process.on("SIGTERM", () => {
-    console.log("SIGTERM signal recieved... Server shutting down..");
+    console.log("SIGTERM signal received... Server shutting down..");
     if (server) {
         server.close(() => {
             process.exit(1);
@@ -52,7 +52,7 @@ process.on("SIGINT", () => {
     process.exit(1);
 });
 process.on("unhandledRejection", (err) => {
-    console.log("Unhandled Rejecttion detected... Server shutting down..", err);
+    console.log("Unhandled Rejection detected... Server shutting down..", err);
     if (server) {
         server.close(() => {
             process.exit(1);
@@ -69,12 +69,3 @@ process.on("uncaughtException", (err) => {
     }
     process.exit(1);
 });
-// Unhandler rejection error
-// Promise.reject(new Error("I forgot to catch this promise"))
-// Uncaught Exception Error
-// throw new Error("I forgot to handle this local erro")
-/**
- * unhandled rejection error
- * uncaught rejection error
- * signal termination sigterm
- */
