@@ -1,31 +1,33 @@
 import { Types } from "mongoose";
 
-export type IUserRole = "admin" | "agent" | "user";
-
-// enum define করো
-export enum IsActive {
-  ACTIVE = "active",
-  INACTIVE = "inactive",
-  BLOCKED = "blocked",
+export enum Role {
+  ADMIN = "ADMIN",
+  USER = "USER",
+  AGENT = "AGENT",
 }
 
-// interface
+export interface IAuthProvider {
+  provider: "google" | "credentials";
+  providerId: string;
+}
+
+export enum IsActive {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  BLOCKED = "BLOCKED",
+}
+
 export interface IUser {
   _id?: Types.ObjectId;
-
   name: string;
   email: string;
-  phone?: string;
+  phone: string;
+  address: string;
   password: string;
-
-  role?: IUserRole;
-  isActive?: IsActive;
-
-  status?: "approved" | "suspended";
-
-  wallet?: Types.ObjectId;
-  isDeleted?: boolean;
-
-  createdAt?: Date;
-  updatedAt?: Date;
+  profile_photo?: string;
+  short_bio?: string; 
+  auths?: IAuthProvider[];
+  is_active: IsActive;
+  is_verified: boolean;
+  role: Role;
 }

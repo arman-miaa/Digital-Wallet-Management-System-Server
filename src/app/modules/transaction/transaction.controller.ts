@@ -1,26 +1,36 @@
-import { Request, Response } from "express";
-
-import { TransactionService } from "./transaction.service";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { NextFunction, Request, Response } from "express";
+import httpStatus from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
+import { TransactionService } from "./transaction.service";
+import { JwtUserPayload } from "../../interfaces/JwtUserPayload.types";
 
-export const createTransaction = catchAsync(
+const getAllTransactionByUserID = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await TransactionService.createTransaction(req.body);
-    res.status(201).json({
+    const { userId: user_id } = req.user as JwtUserPayload;
+    const result = await TransactionService.getAllTransactionByUserID(user_id);
+
+    sendResponse(res, {
       success: true,
-      message: "Transaction created successfully",
+      statusCode: httpStatus.OK,
+      message: "All Transaction Retrieved Successfully",
       data: result,
     });
   }
 );
+const getAllTransaction = catchAsync(async (req: Request, res: Response) => {
+  const result = await TransactionService.getAllTransaction();
 
-export const getAllTransactions = catchAsync(
-  async (req: Request, res: Response) => {
-    const result = await TransactionService.getAllTransactions();
-    res.status(200).json({
-      success: true,
-      message: "All transactions fetched",
-      data: result,
-    });
-  }
-);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "All Transaction Retrieved Successfully",
+    data: result,
+  });
+});
+
+export const transactionControllers = {
+  getAllTransaction,
+  getAllTransactionByUserID
+};

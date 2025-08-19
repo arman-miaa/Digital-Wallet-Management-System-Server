@@ -1,119 +1,94 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from "express";
 import httpStatus from "http-status-codes";
-
-import { WalletService } from "./wallet.service";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import { IUser } from "../user/user.interface";
-import AppError from "../../errorhelpers/appError";
-import { logTransaction } from "../../utils/logTransaction";
+import { WalletService } from "./wallet.service";
+import { JwtUserPayload } from "../../interfaces/JwtUserPayload.types";
+import { JwtPayload } from "jsonwebtoken";
 
+const getMylWallet = catchAsync(async (req: Request, res: Response) => {
+  const { userId: user_id } = req.user as JwtUserPayload;
+  const result = await WalletService.getMylWallet(user_id);
 
-
-export const getMyWallet = catchAsync(async (req: Request, res: Response) => {
-
- 
-    
-    const user = req.body;
-    
-
-  const result = await WalletService.getMyWallet(user?._id);
   sendResponse(res, {
-    statusCode: httpStatus.OK,
     success: true,
-    message: "Wallet fetched successfully",
+    statusCode: httpStatus.OK,
+    message: "Your Wallet Retrieved Successfully",
+    data: result,
+  });
+});
+const getAllWallet = catchAsync(async (req: Request, res: Response) => {
+  const result = await WalletService.getAllWallet();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "All Transaction Retrieved Successfully",
     data: result,
   });
 });
 
-export const blockWallet = catchAsync(async (req: Request, res: Response) => {
-  const walletId = req.params.id;
-  const result = await WalletService.blockWallet(walletId);
+const addMoney = catchAsync(async (req: Request, res: Response) => {
+  const { userId: agent_id } = req.user as JwtUserPayload;
+  const { user_id, amount } = req.body;
+  const result = await WalletService.addMoney(agent_id, user_id, amount);
+
   sendResponse(res, {
-    statusCode: httpStatus.OK,
     success: true,
-    message: "Wallet status updated successfully",
+    statusCode: httpStatus.OK,
+    message: "Money added successfully",
+    data: result,
+  });
+});
+const withdrawMoney = catchAsync(async (req: Request, res: Response) => {
+  const { userId: user_id } = req.user as JwtUserPayload;
+  const { agent_id, amount } = req.body;
+  const result = await WalletService.withdrawMoney(user_id, agent_id, amount);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Money withdraw successfully",
     data: result,
   });
 });
 
-
-export const depositMoney = catchAsync(async (req: Request, res: Response) => {
-
-  const userId = req.user?.userId; 
-  const { amount } = req.body;
-
- 
-
-  if (!userId) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
-  }
-
-
-  const result = await WalletService.deposit(userId, amount);
+const transferMoney = catchAsync(async (req: Request, res: Response) => {
+  const { userId: sender_id } = req.user as JwtUserPayload;
+  const { receiver_id, amount } = req.body;
+  const result = await WalletService.transferMoney(
+    sender_id,
+    receiver_id,
+    amount
+  );
 
   sendResponse(res, {
-    statusCode: httpStatus.OK,
     success: true,
-    message: "Money deposited successfully",
+    statusCode: httpStatus.OK,
+    message: "Money transfer successfully",
     data: result,
   });
 });
 
+const updateWallet = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
+  const payload = req.body;
+  const result = await WalletService.updateWallet(userId, payload);
 
-export const withdrawMoney = catchAsync(async (req: Request, res: Response) => {
-   const userId = req.user?.userId; 
-  const { amount } = req.body;
-  const result = await WalletService.withdraw(userId, amount);
   sendResponse(res, {
-    statusCode: httpStatus.OK,
     success: true,
-    message: "Money withdrawn successfully",
+    statusCode: httpStatus.OK,
+    message: "Wallet Updated Successfully",
     data: result,
   });
 });
 
-export const sendMoney = catchAsync(async (req: Request, res: Response) => {
-  const senderId = req.user?.userId;
-  const { recipientId, amount } = req.body;
-
-  if (!senderId) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
-  }
-
-  const result = await WalletService.sendMoney(senderId, recipientId, amount);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Money sent successfully",
-    data: result,
-  });
-});
-
-
-export const cashIn = catchAsync(async (req: Request, res: Response) => {
-  const senderId = req.user?.userId;
-  const { recipientId, amount } = req.body;
-  const result = await WalletService.cashIn(senderId,recipientId, amount);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Cash in successful",
-    data: result,
-  });
-});
-
-
-export const cashOut = catchAsync(async (req: Request, res: Response) => {
-  const agent = req.user?.userId;
-  console.log("agent..........",req.user);
-  const { userId, amount } = req.body;
-  const result = await WalletService.cashOut(agent, userId, amount);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Cash out successful",
-    data: result,
-  });
-});
+export const WalletControllers = {
+  addMoney,
+  withdrawMoney,
+  getMylWallet,
+  getAllWallet,
+  transferMoney,
+  updateWallet,
+};

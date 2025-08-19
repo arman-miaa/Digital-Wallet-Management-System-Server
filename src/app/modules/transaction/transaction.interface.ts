@@ -1,16 +1,28 @@
 import { Types } from "mongoose";
-import { IUser } from "../user/user.interface";
-
-export type TransactionType = "add"|"withdraw"|"transfer"|"cashin"| "cashout" | "RECEIVE";
-export type TransactionStatus = "success" | "failed";
-
-export interface ITransaction {
-  amount: number;
-  from?: Types.ObjectId | IUser; 
-  to?: Types.ObjectId | IUser; 
-  type: TransactionType;
-  status: TransactionStatus;
-  timestamp?: Date;
+export enum TransactionType {
+  ADD = "ADD",
+  WITHDRAW = "WITHDRAW",
+  TRANSFER = "TRANSFER",
+}
+export enum TransactionStatus {
+  PENDING = "PENDING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
 }
 
+export interface ITransaction {
+  user: Types.ObjectId;
+  amount: number;
+  type: TransactionType;
+  status: TransactionStatus;
+  transaction_fee?:number;
+}
 
+export interface ITransactionCreateInput {
+  user: string;
+  agent: string;
+  amount: number;
+  type: TransactionType;
+  status: TransactionStatus;
+  transaction_fee?:number;
+}

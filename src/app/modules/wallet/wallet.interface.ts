@@ -1,8 +1,7 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface IWallet {
+export interface IWallet extends Document {
   user: Types.ObjectId;
   balance: number;
-  role: "user" | "agent";
-  isBlocked?: boolean;
+  status: "ACTIVE" | "BLOCKED";
 }

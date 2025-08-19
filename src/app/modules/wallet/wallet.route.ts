@@ -1,27 +1,40 @@
-import express from "express";
+import { Router } from "express";
+import { validateRequest } from "../../middlewares/validateRequest";
+import { WalletControllers } from "./wallet.controller";
+import { checkAuth } from "../../middlewares/checkAuth";
+import { Role } from "../user/user.interface";
+import { WalletBalanceAddZodSchema, WalletBalanceWithdrawZodSchema, WalletTransferZodSchema } from "./wallet.validation";
 
+const router = Router();
 
-import {
-  getMyWallet,
-  blockWallet,
-  depositMoney,
-  withdrawMoney,
-  sendMoney,
-  cashIn,
-  cashOut,
-} from "./wallet.controller";
-import { authMiddleware } from "../../middlewares/authMiddleware";
-
-const router = express.Router();
-
-router.get("/my-wallet", authMiddleware("user", "admin", "agent"), getMyWallet);
-router.patch("/block/:id", authMiddleware("admin"), blockWallet);
-
-router.post("/deposit", authMiddleware("user"), depositMoney);
-router.post("/withdraw", authMiddleware("user"), withdrawMoney);
-router.post("/send-money", authMiddleware("user"), sendMoney);
-
-router.post("/cash-in", authMiddleware("agent"), cashIn);
-router.post("/cash-out", authMiddleware("agent"), cashOut);
+router.get(
+  "/all-wallet",
+  checkAuth(Role.ADMIN),
+  WalletControllers.getAllWallet
+);
+router.get(
+  "/my-wallet",
+  checkAuth(Role.USER,Role.AGENT),
+  WalletControllers.getMylWallet
+);
+router.post(
+  "/add",
+  validateRequest(WalletBalanceAddZodSchema),
+  checkAuth(Role.AGENT),
+  WalletControllers.addMoney
+);
+router.post(
+  "/withdraw",
+  validateRequest(WalletBalanceWithdrawZodSchema),
+  checkAuth(Role.USER),
+  WalletControllers.withdrawMoney
+);
+router.post(
+  "/transfer-money",
+  validateRequest(WalletTransferZodSchema),
+  checkAuth(Role.USER),
+  WalletControllers.transferMoney
+);
+router.patch("/:id", checkAuth(Role.ADMIN), WalletControllers.updateWallet)
 
 export const WalletRoutes = router;

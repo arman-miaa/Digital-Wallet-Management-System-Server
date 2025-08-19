@@ -1,37 +1,44 @@
 import { Schema, model } from "mongoose";
-import { ITransaction } from "./transaction.interface";
+import {
+  ITransaction,
+  TransactionStatus,
+  TransactionType,
+} from "./transaction.interface";
 
 const transactionSchema = new Schema<ITransaction>(
   {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: Object.values(TransactionType),
+      required: true,
+    },
     amount: {
       type: Number,
       required: true,
     },
-    from: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-    to: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-    type: {
-      type: String,
-      enum: ["add", "withdraw", "transfer", "cashin", "cashout", "RECEIVE"],
+    transaction_fee: {
+      type: Number,
       required: true,
+      default: 0,
     },
     status: {
       type: String,
-      enum: ["success", "failed"],
-      default: "success",
+      enum: Object.values(TransactionStatus),
+      default: TransactionStatus.PENDING,
     },
   },
   {
-    timestamps: { createdAt: "timestamp", updatedAt: false },
+    timestamps: true,
+    versionKey: false,
   }
 );
 
-export const Transaction = model<ITransaction>(
+export const TransactionModel = model<ITransaction>(
   "Transaction",
   transactionSchema
 );

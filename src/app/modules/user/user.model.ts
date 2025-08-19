@@ -1,53 +1,47 @@
 import { Schema, model } from "mongoose";
-import { IUser } from "./user.interface";
+import { IsActive, IUser, Role } from "./user.interface";
 
-const userSchema = new Schema<IUser>(
+const AuthProviderSchema = new Schema(
   {
+    provider: {
+      type: String,
+      enum: ["google", "credentials"],
+      required: true,
+    },
+    providerId: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false }
+);
 
-    name: {
+const UserSchema = new Schema<IUser>(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    phone: { type: String, required: true, unique: true },
+    address: { type: String, required: true },
+    password: { type: String, required: true },
+    profile_photo: { type: String },
+    short_bio: { type: String },
+    auths: [AuthProviderSchema],
+    is_active: {
       type: String,
-      required: true,
-      trim: true,
-    },
-    phone: {
-      type: String,
-      required: false,
-    },
-    
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: true,
-     
+      enum: Object.values(IsActive),
+      default: IsActive.ACTIVE,
     },
     role: {
       type: String,
-      enum: ["admin", "agent", "user"],
-      default: "user",
+      enum: Object.values(Role),
+      default: Role.USER,
     },
-    isActive: {
-      type: String,
-      enum: ["active", "blocked", "pending"],
-      default: "active",
-    },
-    wallet: {
-      type: Schema.Types.ObjectId,
-      ref: "Wallet",
-    },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
+    is_verified: { type: Boolean, default: false },
   },
   {
     timestamps: true,
+    versionKey:false,
   }
 );
 
-export const User = model<IUser>("User", userSchema);
+export const UserModel = model<IUser>("User", UserSchema);

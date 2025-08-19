@@ -1,0 +1,502 @@
+{
+	"info": {
+		"_postman_id": "ce30b138-eace-4272-b013-e0f21223c67c",
+		"name": "Digital Wallet",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35312097"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Eshrak\",\n    \"email\":\"user2@example.com\",\n    \"password\":\"@User1234\",\n    \"address\":\"Dhaka\",\n    \"phone\":\"01925062876\"\n\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}api/w1/user/register",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\":\"AGENT\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}api/w1/user/688c85d52d1304b3b3d4ce40",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"user",
+								"688c85d52d1304b3b3d4ce40"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All users",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}api/w1/user/all-users",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"user",
+								"all-users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All agents",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}api/w1/user/all-agents",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"user",
+								"all-agents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.accessToken) {",
+									"    pm.globals.set(\"token\", jsonData.data.accessToken);",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\n    \"email\": \"admin@example.com\",\n    \"password\": \"123456\"\n\n    // \"email\":\"agent@example.com\",\n    // \"password\":\"@Agent1234\"\n\n    // \"email\": \"user1@example.com\",\n    // \"password\": \"@User1234\"\n\n\n\n   \n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}api/w1/auth/login",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Wallet",
+			"item": [
+				{
+					"name": "Add Money",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\":\"688c8673ee91311f4111f05c\",\n    \"amount\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}api/w1/wallet/add",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"wallet",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Withdraw Money",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agent_id\":\"688c85d52d1304b3b3d4ce40\",\n    \"amount\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}api/w1/wallet/withdraw",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"wallet",
+								"withdraw"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Transfer Money",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"receiver_id\":\"688c8699ee91311f4111f061\",\n    \"amount\": 50\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}api/w1/wallet/transfer-money",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"wallet",
+								"transfer-money"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All-wallet",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 5\n}"
+						},
+						"url": {
+							"raw": "{{url}}api/w1/wallet/all-wallet",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"wallet",
+								"all-wallet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "My-wallet",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}api/w1/wallet/my-wallet",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"wallet",
+								"my-wallet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update-wallet",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\":\"ACTIVE\",\n    \"balance\": 5000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}api/w1/wallet/688c85d52d1304b3b3d4ce40",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"wallet",
+								"688c85d52d1304b3b3d4ce40"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transaction",
+			"item": [
+				{
+					"name": "Get All transaction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}api/w1/trans/all-transactions",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"trans",
+								"all-transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Transaction-history",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}api/w1/trans/your-transactions",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"trans",
+								"your-transactions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Commision",
+			"item": [
+				{
+					"name": "Agent All Commission History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}api/w1/com/all-agent-com",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"com",
+								"all-agent-com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Agent Commission History",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agent_id\":\"688a59cf9136ea1574dc0f16\",\n    \"amount\": 1000\n}"
+						},
+						"url": {
+							"raw": "{{url}}api/w1/com/agent-com",
+							"host": [
+								"{{url}}api"
+							],
+							"path": [
+								"w1",
+								"com",
+								"agent-com"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.request.headers.add({",
+					"  key: 'Authorization',",
+					"  value: pm.globals.get('token')  // or pm.globals.get if you’re using global variable",
+					"});",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Auth",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}
